@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Death Note - Sổ Tay Thần Chết</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for Gothic and Hand-written feels -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Creepster&family=Special+Elite&family=Reenie+Beanie&family=Charmonman:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background-color: #050505;
+            color: #e0e0e0;
+            font-family: 'Special Elite', monospace;
+            overflow-x: hidden;
+        }
+
+        /* Gothic title style */
+        .gothic-title {
+            font-family: 'Cinzel Decorative', serif;
+            letter-spacing: 0.15em;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.6), 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .deathnote-font {
+            font-family: 'Creepster', cursive;
+        }
+
+        /* Realistic parchment paper styling for notebook */
+        .parchment {
+            background: radial-gradient(circle, #e9dfcb 0%, #d3c2a3 100%);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.3), 5px 5px 25px rgba(0,0,0,0.7);
+            color: #1a1a1a;
+            position: relative;
+        }
+
+        /* Leather cover of the Death Note */
+        .leather-cover {
+            background: linear-gradient(135deg, #111111 0%, #1c1c1c 50%, #0d0d0d 100%);
+            border: 4px solid #000;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 0, 0, 0.1);
+        }
+
+        /* Ink writing text effect */
+        .ink-text {
+            font-family: 'Reenie Beanie', cursive;
+            font-size: 2.25rem;
+            line-height: 1;
+            color: #0b0d10;
+            text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.5);
+            letter-spacing: 0.05em;
+        }
+
+        /* Custom scrollbar for gothic theme */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d0d0d;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #8b0000;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff0000;
+        }
+
+        /* Shinigami Blood Mode pulse transition */
+        .shinigami-vision {
+            filter: sepia(0.4) saturate(2.5) hue-rotate(-50deg) contrast(1.2);
+            animation: pulse-red 4s infinite alternate;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: inset 0 0 50px rgba(255, 0, 0, 0.4); }
+            100% { box-shadow: inset 0 0 100px rgba(255, 0, 0, 0.8); }
+        }
+
+        /* Write progress indicator anim */
+        .ink-writing {
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid transparent;
+            animation: typing 2.5s steps(30, end) forwards;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        /* Floating smoke/particles canvas */
+        #smokeCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.35;
+        }
+
+        /* Floating apple animation */
+        .float-apple {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen relative flex flex-col justify-between overflow-x-hidden">
+
+    <!-- Canvas for floating dark mist/spirit particles -->
+    <canvas id="smokeCanvas"></canvas>
+
+    <script>
+        // Setup advanced sound synthesis without requiring any external assets!
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Heartbeat synth
+        function playHeartbeat(speed = 1.0) {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(55, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6 / speed);
+            
+            gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6 / speed);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.6 / speed);
+
+            // Double beat simulation
+            setTimeout(() => {
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(50, audioCtx.currentTime);
+                osc2.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.55 / speed);
+                gain2.gain.setValueAtTime(0.6, audioCtx.currentTime);
+                gain2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.55 / speed);
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.start();
+                osc2.stop(audioCtx.currentTime + 0.55 / speed);
+            }, 220 / speed);
+        }
+
+        // Pen scratch sound simulation (Filtered White Noise)
+        function playPenScratch(duration = 0.8) {
+            initAudio();
+            const bufferSize = audioCtx.sampleRate * duration;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            // Generate white noise
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            // Lowpass and Bandpass filters to simulate scratching paper
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(900, audioCtx.currentTime);
+            filter.Q.setValueAtTime(2.0, audioCtx.currentTime);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            noise.start();
+            noise.stop(audioCtx.currentTime + duration);
+        }
+
+        // Dark Atmospheric Horror Chime
+        function playHorrorChime() {
+            initAudio();
+            const now = audioCtx.currentTime;
+            const frequencies = [85, 115, 140, 195]; // Eerie, non-harmonic frequencies
+
+            frequencies.forEach((f, index) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = (index % 2 === 0) ? 'sawtooth' : 'triangle';
+                osc.frequency.setValueAtTime(f, now);
+                // Pitch slide down for doom effect
+                osc.frequency.exponentialRampToValueAtTime(f * 0.7, now + 3.0);
+
+                // Add bandpass filter to make it dusty/ghostly
+                const bp = audioCtx.createBiquadFilter();
+                bp.type = 'bandpass';
+                bp.frequency.value = 400;
+
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.12, now + 0.2);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 3.5);
+
+                osc.connect(bp);
+                bp.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(now + 4.0);
+            });
+        }
+
+        // Clock Ticking Sound
+        function playClockTick() {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+            
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        // Shinigami Eye Deal eerie activation scream/wind sound
+        function playShinigamiDealSound() {
+            initAudio();
+            const now = audioCtx.currentTime;
+            
+            // Sweeping whistle sound
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.exponentialRampToValueAtTime(3000, now + 1.5);
+            osc.frequency.exponentialRampToValueAtTime(80, now + 3.0);
+
+            gain.gain.setValueAtTime(0.01, now);
+            gain.gain.linearRampToValueAtTime(0.2, now + 1.0);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 3.0);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(now + 3.0);
+        }
+    </script>
+
+    <!-- Ambient looping sound controller (Initiates on interaction) -->
+    <div id="ambientOverlay" class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center transition-all duration-1000">
+        <div class="text-center p-8 max-w-lg">
+            <h1 class="deathnote-font text-6xl md:text-8xl text-red-700 tracking-wider mb-8 drop-shadow-[0_5px_15px_rgba(255,0,0,0.5)]">DEATH NOTE</h1>
+            <p class="text-gray-400 mb-8 italic">"Kẻ có tên được viết trong cuốn sổ này... sẽ phải chết."</p>
+            <button onclick="startExperience()" class="px-8 py-4 border-2 border-red-800 text-red-500 hover:text-white hover:bg-red-800 hover:shadow-[0_0_25px_#ff0000] font-bold text-lg tracking-widest rounded-lg transition-all duration-300">
+                CHẤP NHẬN GIAO KÈO
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN INTERACTIVE SECTION -->
+    <main class="z-10 w-full max-w-7xl mx-auto px-4 py-6 md:py-12 flex-grow flex flex-col justify-start items-center">
+        
+        <!-- Header Controls & Theme Swapper -->
+        <header class="w-full flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+            <div class="text-center md:text-left">
+                <h2 class="gothic-title text-3xl md:text-5xl text-red-600 font-extrabold tracking-widest cursor-pointer select-none" onclick="playHorrorChime()">
+                    DEATH NOTE
+                </h2>
+                <p class="text-xs text-gray-500 tracking-widest mt-1 italic uppercase">An Interactive Tribute Webpage</p>
+            </div>
+            
+            <!-- Quick stats / Shinigami deal buttons -->
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                <!-- Apple fed to Ryuk -->
+                <div id="ryukAppleWidget" class="bg-stone-900 border border-stone-800 rounded-full px-4 py-2 flex items-center gap-2 shadow-lg cursor-pointer hover:border-red-800 transition-all duration-300" onclick="feedRyuk()">
+                    <span class="text-xs text-stone-400">Táo cho Ryuk:</span>
+                    <span id="appleCount" class="text-red-500 font-bold">0</span>
+                    <i class="fa-solid fa-apple-whole text-red-600 float-apple"></i>
+                </div>
+
+                <!-- Shinigami Eye Button -->
+                <button id="eyeDealBtn" onclick="offerShinigamiEyes()" class="bg-red-950/40 hover:bg-red-900/80 border border-red-800 text-red-400 hover:text-white font-semibold text-xs md:text-sm px-4 py-2.5 rounded-md flex items-center gap-2 shadow-md transition-all duration-300">
+                    <i class="fa-solid fa-eye text-red-500 animate-pulse"></i>
+                    GIAO KÈO MẮT THẦN CHẾT
+                </button>
+
+                <!-- Sound Toggle -->
+                <button onclick="toggleAmbientSound()" id="soundBtn" class="bg-stone-900 border border-stone-800 hover:border-stone-700 text-gray-400 p-2.5 rounded-full shadow-md transition-all duration-300">
+                    <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- BOOK CONTAINER (Notebook) -->
+        <div id="deathNoteContainer" class="w-full leather-cover rounded-xl p-3 md:p-6 mb-8 flex flex-col lg:flex-row gap-6 items-stretch transition-all duration-500">
+            
+            <!-- LEFT PAGE: RULES OR HOW TO USE (Scrollable styled parchment) -->
+            <div class="w-full lg:w-1/2 parchment rounded-lg p-5 md:p-8 flex flex-col justify-between border-r border-black/10">
+                <div>
+                    <div class="flex items-center justify-between border-b border-stone-600/30 pb-3 mb-4">
+                        <span class="font-extrabold tracking-widest text-xs uppercase text-stone-700">How to use it - Luật Lệ</span>
+                        <i class="fa-solid fa-skull text-stone-800"></i>
+                    </div>
+                    
+                    <div id="rulesContainer" class="text-stone-900 text-sm space-y-4 max-h-[350px] lg:max-h-[460px] overflow-y-auto pr-2 leading-relaxed">
+                        <!-- Rule 1 -->
+                        <div>
+                            <p class="font-bold border-l-2 border-stone-800 pl-2 text-stone-800">RULE I</p>
+                            <p class="italic text-stone-700 mt-1">"Kẻ có tên được viết vào cuốn sổ này sẽ phải chết."</p>
+                            <p class="text-stone-600 text-xs mt-0.5">Cuốn sổ này sẽ không có tác dụng trừ khi người viết khắc ghi khuôn mặt của nạn nhân trong đầu. Nhờ đó, những người trùng tên họ sẽ không bị ảnh hưởng.</p>
+                        </div>
+                        <!-- Rule 2 -->
+                        <div>
+                            <p class="font-bold border-l-2 border-stone-800 pl-2 text-stone-800">RULE II</p>
+                            <p class="italic text-stone-700 mt-1">"Nếu nguyên nhân cái chết được ghi trong vòng 40 giây sau khi viết tên, điều đó sẽ xảy ra."</p>
+                            <p class="text-stone-600 text-xs mt-0.5">Nếu nguyên nhân cái chết không được ghi rõ, nạn nhân sẽ mặc định qua đời vì một cơn đau tim (Heart Attack).</p>
+                        </div>
+                        <!-- Rule 3 -->
+                        <div>
+                            <p class="font-bold border-l-2 border-stone-800 pl-2 text-stone-800">RULE III</p>
+                            <p class="italic text-stone-700 mt-1">"Sau khi ghi nguyên nhân cái chết, người viết có thêm 6 phút 40 giây (400 giây) để thiết lập hoàn cảnh chi tiết."</p>
+                        </div>
+                        <!-- Rule 4 -->
+                        <div>
+                            <p class="font-bold border-l-2 border-stone-800 pl-2 text-stone-800">RULE IV</p>
+                            <p class="italic text-stone-700 mt-1">"Cuốn sổ tay này sẽ thuộc quyền sở hữu của thế giới loài người, ngay khi nó chạm vào mặt đất."</p>
+                        </div>
+                        <!-- Rule 5 -->
+                        <div>
+                            <p class="font-bold border-l-2 border-stone-800 pl-2 text-stone-800">RULE V</p>
+                            <p class="italic text-stone-700 mt-1">"Chủ nhân cuốn sổ có thể thực hiện giao ước Mắt Thần Chết để thấy tên và tuổi thọ còn lại của bất kỳ ai, đổi lại bằng một nửa thời gian sống còn lại của mình."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shinigami Eye Indicator if active -->
+                <div id="eyeStatusIndicator" class="hidden mt-4 bg-red-950/20 border border-red-900/40 text-red-800 p-3 rounded text-xs text-center font-bold tracking-widest animate-pulse">
+                    <i class="fa-solid fa-eye-evil mr-1"></i> BẠN ĐANG SỞ HỮU MẮT THẦN CHẾT
+                </div>
+
+                <!-- Footer note on left page -->
+                <div class="mt-6 border-t border-stone-600/20 pt-3 text-center text-[10px] text-stone-600 tracking-wider">
+                    SỔ TAY THẦN CHẾT • THẾ GIỚI SHINIGAMI
+                </div>
+            </div>
+
+            <!-- RIGHT PAGE: INTERACTIVE WRITING AREA -->
+            <div class="w-full lg:w-1/2 parchment rounded-lg p-5 md:p-8 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between border-b border-stone-600/30 pb-3 mb-6">
+                        <span class="font-extrabold tracking-widest text-xs uppercase text-stone-700">Write a Fate - Khắc Ghi Bản Án</span>
+                        <div class="flex items-center gap-2 text-xs text-red-700 font-bold" id="countdownLabel">
+                            <span id="activeTimer" class="hidden"><span class="animate-ping inline-block w-2 h-2 mr-1 bg-red-600 rounded-full"></span> 40s Đếm Ngược</span>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Form to Write Names -->
+                    <form id="deathNoteForm" onsubmit="handleWriteFate(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-stone-700 mb-1">Họ & Tên Đối Tượng:</label>
+                            <input type="text" id="targetName" required placeholder="Nhập họ tên đầy đủ..." 
+                                class="w-full bg-stone-100/50 border-b-2 border-stone-800 focus:border-red-700 outline-none py-2 px-3 text-stone-900 font-semibold rounded-t transition-all duration-300 placeholder:text-stone-500">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-stone-700 mb-1">Nguyên Nhân Cái Chết:</label>
+                                <select id="targetCause" onchange="toggleCustomCauseInput()"
+                                    class="w-full bg-stone-100/50 border-b-2 border-stone-800 focus:border-red-700 outline-none py-2 px-3 text-stone-900 font-semibold rounded-t transition-all duration-300">
+                                    <option value="Đau tim">Đau Tim (Mặc định)</option>
+                                    <option value="Tai nạn giao thông">Tai Nạn Giao Thông</option>
+                                    <option value="Tự vẫn">Tự Vẫn</option>
+                                    <option value="Ngộ độc">Ngộ Độc Thực Phẩm</option>
+                                    <option value="Khác">Khác...</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-stone-700 mb-1">Thời Gian Xảy Ra (Phút):</label>
+                                <input type="number" id="targetDelay" value="0" min="0" max="400" placeholder="Ngay lập tức"
+                                    class="w-full bg-stone-100/50 border-b-2 border-stone-800 focus:border-red-700 outline-none py-2 px-3 text-stone-900 font-semibold rounded-t transition-all duration-300">
+                            </div>
+                        </div>
+
+                        <!-- Custom Cause of death -->
+                        <div id="customCauseWrapper" class="hidden">
+                            <label class="block text-xs font-bold uppercase text-stone-700 mb-1">Mô tả chi tiết hoàn cảnh:</label>
+                            <textarea id="customCause" placeholder="Nhập hoàn cảnh chết cụ thể (Ví dụ: Trượt vỏ chuối ngã đập đầu lúc 15h00)..." rows="2"
+                                class="w-full bg-stone-100/50 border-b-2 border-stone-800 focus:border-red-700 outline-none py-2 px-3 text-stone-900 font-semibold rounded transition-all duration-300 placeholder:text-stone-500"></textarea>
+                        </div>
+
+                        <!-- Face Image Simulation URL (optional placeholder simulating the target's image to fulfill Rule I) -->
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-stone-700 mb-1">Hình Dung Khuôn Mặt (Nhập URL ảnh hoặc dùng ảnh ngẫu nhiên):</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="targetPhoto" placeholder="Bỏ trống để tự động sinh khuôn mặt ảo..." 
+                                    class="flex-grow bg-stone-100/50 border-b-2 border-stone-800 focus:border-red-700 outline-none py-2 px-3 text-stone-900 font-semibold rounded-t text-xs transition-all duration-300 placeholder:text-stone-500">
+                                <button type="button" onclick="randomizeFace()" class="bg-stone-800 hover:bg-stone-900 text-white text-xs px-3 rounded-t transition-all duration-300">Ngẫu Nhiên</button>
+                            </div>
+                        </div>
+
+                        <!-- Eerie Submit Button -->
+                        <button type="submit" id="writeBtn" class="w-full py-3 bg-stone-900 hover:bg-red-800 text-stone-200 hover:text-white font-bold rounded-lg tracking-widest shadow-lg transition-all duration-300 flex items-center justify-center gap-2 border border-stone-700">
+                            <i class="fa-solid fa-feather-pointed"></i>
+                            VIẾT LÊN BẢN ÁN (WRITING)
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Virtual Handwriting Visualizer (Names written on the current page session) -->
+                <div class="mt-8 border-t border-stone-600/30 pt-4">
+                    <p class="text-xs font-bold uppercase text-stone-700 tracking-wider mb-2">Trang Viết Thực Tế:</p>
+                    <div id="handwritingPage" class="min-h-[120px] max-h-[160px] overflow-y-auto space-y-2 p-2 bg-stone-200/40 rounded border border-stone-300 flex flex-col justify-start">
+                        <!-- Written names appear here with elegant handwritten curves -->
+                        <p class="text-stone-500 italic text-center text-xs my-auto">Chưa có tên nào được viết trên trang này...</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BOTTOM: SYSTEM LOGS / ACTIVE CONTRACTS REGISTRY -->
+        <section class="w-full max-w-7xl z-10 bg-stone-950/80 border border-stone-900 rounded-xl p-4 md:p-6 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-stone-800 pb-3 mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-list text-red-600"></i>
+                    <h3 class="font-bold tracking-wider text-sm md:text-base">DANH SÁCH LINH HỒN ĐÃ BỊ ĐỊNH ĐOẠT</h3>
+                </div>
+                <span class="text-xs text-stone-500">Mất 40 giây để định đoạt linh hồn</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="victimGrid">
+                <!-- Dynamic cards representing written victims -->
+                <div class="col-span-full py-8 text-center text-stone-600 text-sm italic">
+                    Chưa có sinh linh nào bị tước đoạt... Cuốn sổ tay vẫn trống rỗng.
+                </div>
+            </div>
+        </section>
+
+        <!-- RYUK THE SHINIGAMI EASTER EGG CONTAINER -->
+        <section class="w-full max-w-7xl z-10 mt-6 bg-stone-950/40 border border-stone-900/40 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 bg-stone-900 rounded-full flex items-center justify-center border border-red-900/60 overflow-hidden relative group">
+                    <!-- SVG drawing Ryuk Silhouette -->
+                    <svg class="w-12 h-12 text-stone-400 group-hover:text-red-600 group-hover:scale-110 transition-all duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 111.063.852l-.041.02a.75.75 0 11-1.063-.852zM12 5.25a.75.75 0 100-1.5.75.75 0 000 1.5zM12 12.75a.75.75 0 100-1.5.75.75 0 000 1.5zM12 20.25a.75.75 0 100-1.5.75.75 0 000 1.5z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5C4.5 6.358 7.858 3 12 3s7.5 3.358 7.5 7.5S16.142 18 12 18s-7.5-3.358-7.5-7.5z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5h18M12 3v15" />
+                    </svg>
+                    <!-- Ryuk eyes glowing on eye contract -->
+                    <div id="ryukEyes" class="hidden absolute top-[28px] left-[18px] right-[18px] flex justify-between">
+                        <div class="w-1.5 h-1.5 bg-red-600 rounded-full animate-ping"></div>
+                        <div class="w-1.5 h-1.5 bg-red-600 rounded-full animate-ping"></div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold text-stone-200 text-sm">Lời thì thầm từ Ryuk (Thần Chết)</h4>
+                    <p id="ryukSpeech" class="text-xs text-stone-500 italic mt-0.5">"Ta thích táo... Cho ta ăn táo đi rồi ta sẽ kể cho ngươi một bí mật..."</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button onclick="feedApple()" class="px-4 py-2 bg-red-950/50 hover:bg-red-900/80 border border-red-800 rounded text-red-400 hover:text-white text-xs font-bold tracking-widest transition-all duration-300">
+                    <i class="fa-solid fa-apple-whole mr-1"></i> DÂNG TÁO CHO RYUK
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SHINIGAMI EYE CONTRACT MODAL -->
+    <div id="eyeDealModal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="bg-stone-900 border-2 border-red-900 p-6 max-w-md rounded-lg shadow-2xl text-center space-y-4">
+            <i class="fa-solid fa-eye text-red-600 text-5xl animate-pulse"></i>
+            <h3 class="deathnote-font text-3xl text-red-500 tracking-wider">HỢP ĐỒNG MẮT THẦN CHẾT</h3>
+            <p class="text-stone-300 text-sm leading-relaxed">
+                "Ngươi muốn đổi lấy Đôi Mắt Thần Chết chứ? Ngươi sẽ có khả năng nhìn thấu Họ Tên thật và Tuổi Thọ còn lại của bất kỳ ai ngay lập tức."
+            </p>
+            <p class="text-red-500 text-xs font-extrabold uppercase">
+                Cảnh báo: Đổi lại, tuổi thọ còn lại của ngươi trên đời này sẽ bị giảm đi MỘT NỬA! Giao kèo không thể đảo ngược!
+            </p>
+            <div class="pt-4 flex justify-center gap-4">
+                <button onclick="acceptEyeContract()" class="px-6 py-2 bg-red-800 hover:bg-red-600 text-white font-bold rounded shadow-[0_0_15px_#ff0000] transition-all duration-300">
+                    GIAO KÈO (Bớt 50% Tuổi)
+                </button>
+                <button onclick="closeEyeDealModal()" class="px-6 py-2 bg-stone-800 hover:bg-stone-700 text-stone-400 rounded transition-all duration-300">
+                    HỦY BỎ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHINIGAMI EYE CAMERA VIEW (Bonus Immersive Effect!) -->
+    <div id="shinigamiVisionPanel" class="fixed bottom-4 left-4 z-40 w-56 h-40 bg-black/80 border-2 border-red-900 rounded-lg overflow-hidden hidden flex flex-col justify-between">
+        <div class="bg-red-950 text-[10px] text-red-500 p-1 flex justify-between items-center font-bold tracking-widest px-2 border-b border-red-900">
+            <span>SHINIGAMI SCANNER</span>
+            <span class="animate-pulse text-red-600">● LIVE</span>
+        </div>
+        <!-- Simulated Camera Feed or fallback canvas -->
+        <div class="relative flex-grow bg-stone-950 flex items-center justify-center overflow-hidden">
+            <video id="shinigamiCam" class="absolute inset-0 w-full h-full object-cover opacity-60 hidden" autoplay playsinline muted></video>
+            <div id="shinigamiCamFallback" class="text-center p-2 text-stone-600 text-[10px] italic">
+                <i class="fa-solid fa-video-slash text-stone-800 text-xl mb-1"></i><br>
+                Đồng ý quyền camera để kích hoạt máy quét tuổi thọ
+            </div>
+            <!-- Overlay lifespans and true names over video -->
+            <div id="cameraHUD" class="absolute inset-0 flex flex-col justify-center items-center pointer-events-none p-2 text-center">
+                <div class="text-[10px] font-bold text-red-500 leading-tight">OBJECT IDENTIFIED</div>
+                <div class="text-xs text-white tracking-widest font-extrabold bg-black/60 px-1 rounded">KIRA (LIGH YAGAMI)</div>
+                <div class="text-xs text-red-500 font-extrabold font-mono shadow-red-500 tracking-wider">938241029</div>
+            </div>
+        </div>
+        <div class="p-1 bg-black text-[9px] text-stone-500 text-center uppercase tracking-widest border-t border-red-950">
+            Mắt Thần Chết đang mở
+        </div>
+    </div>
+
+    <!-- CUSTOM AUDIO POPUP MESSAGE BOX (Replacement of alert) -->
+    <div id="customAlert" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 max-w-sm w-full bg-stone-900 border-l-4 border-red-600 p-4 rounded shadow-2xl hidden flex items-start gap-3 transition-all duration-500">
+        <div class="text-red-500 text-xl"><i id="alertIcon" class="fa-solid fa-skull"></i></div>
+        <div class="flex-grow">
+            <p id="alertTitle" class="font-bold text-sm text-stone-100 uppercase tracking-widest">Bản Án Đã Ghi</p>
+            <p id="alertMsg" class="text-xs text-stone-400 mt-0.5">Kẻ tội đồ đã được khắc ghi vào Death Note.</p>
+        </div>
+        <button onclick="hideCustomAlert()" class="text-stone-500 hover:text-white text-xs"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="z-10 w-full text-center py-6 text-stone-600 text-[11px] border-t border-stone-950 mt-12 bg-black/30">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-2">
+            <p>&copy; 2026 DEATH NOTE PROJECT. Thiết kế dựa trên manga Death Note của Tsugumi Ohba và Takeshi Obata.</p>
+            <p class="flex items-center gap-3">
+                <span class="hover:text-red-500 cursor-pointer" onclick="playHorrorChime()">Gõ Boong Thần Chết</span>
+                <span>•</span>
+                <span class="hover:text-red-500 cursor-pointer" onclick="playHeartbeat(1.5)">Đập Đau Tim</span>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // GLOBALS STATE
+        let isMuted = false;
+        let ambientInterval = null;
+        let heartRate = 1200; // time in ms between heartbeats
+        let heartBeatInterval = null;
+        let victims = JSON.parse(localStorage.getItem('deathnote_victims')) || [];
+        let hasShinigamiEyes = localStorage.getItem('shinigami_eyes') === 'true';
+        let applesFed = parseInt(localStorage.getItem('apples_fed') || '0');
+        let streamActive = null;
+
+        const ryukQuotes = [
+            "Ta thích táo... Cho ta ăn táo đi rồi ta sẽ kể cho ngươi một bí mật...",
+            "Con người thực sự rất thú vị...",
+            "Ngươi có biết Thần chết cũng thích táo đỏ của nhân gian không?",
+            "Viết thêm một cái tên nữa đi, ta đang thấy rất tẻ nhạt...",
+            "Nếu ngươi dùng đôi mắt của ta, mọi chuyện sẽ dễ dàng hơn nhiều.",
+            "Ta sẽ không đứng về phe ai cả, ta chỉ đứng xem kịch thôi."
+        ];
+
+        // START EXPERIENCE ON CLICK
+        function startExperience() {
+            const overlay = document.getElementById('ambientOverlay');
+            overlay.classList.add('opacity-0');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 1000);
+
+            // Initialize AudioContext
+            initAudio();
+            
+            // Play initial dark atmosphere chime
+            playHorrorChime();
+
+            // Start ambient heartbeat loops
+            startHeartbeatLoop();
+
+            // Render existing data
+            renderVictims();
+            updateShinigamiEyesUI();
+            updateAppleUI();
+
+            // Setup smoky background
+            initSmokeCanvas();
+        }
+
+        // HEARTBEAT ANIMATION LOOP
+        function startHeartbeatLoop() {
+            if (heartBeatInterval) clearInterval(heartBeatInterval);
+            
+            heartBeatInterval = setInterval(() => {
+                if (!isMuted) {
+                    playHeartbeat(hasShinigamiEyes ? 1.4 : 1.0);
+                }
+                // flash heart icon slightly if available
+                const icon = document.querySelector('.fa-skull');
+                if (icon) {
+                    icon.classList.add('scale-110', 'text-red-500');
+                    setTimeout(() => icon.classList.remove('scale-110', 'text-red-500'), 150);
+                }
+            }, heartRate);
+        }
+
+        // CONTROL SOUND
+        function toggleAmbientSound() {
+            isMuted = !isMuted;
+            const soundIcon = document.getElementById('soundIcon');
+            if (isMuted) {
+                soundIcon.className = 'fa-solid fa-volume-xmark';
+                if (heartBeatInterval) clearInterval(heartBeatInterval);
+            } else {
+                soundIcon.className = 'fa-solid fa-volume-high';
+                startHeartbeatLoop();
+            }
+        }
+
+        // CUSTOM NOTIFICATION
+        function showCustomAlert(title, msg, iconClass = "fa-solid fa-skull") {
+            const alertBox = document.getElementById('customAlert');
+            const alertTitle = document.getElementById('alertTitle');
+            const alertMsg = document.getElementById('alertMsg');
+            const alertIcon = document.getElementById('alertIcon');
+
+            alertTitle.textContent = title;
+            alertMsg.textContent = msg;
+            alertIcon.className = iconClass;
+
+            alertBox.classList.remove('hidden');
+            alertBox.classList.add('flex');
+
+            setTimeout(() => {
+                hideCustomAlert();
+            }, 5000);
+        }
+
+        function hideCustomAlert() {
+            const alertBox = document.getElementById('customAlert');
+            alertBox.classList.remove('flex');
+            alertBox.classList.add('hidden');
+        }
+
+        // RANDOM SHINIGAMI EYE NUMBERS
+        function generateLifespan() {
+            return Math.floor(10000000 + Math.random() * 900000000);
+        }
+
+        // MANAGE FORM INPUTS
+        function toggleCustomCauseInput() {
+            const selectVal = document.getElementById('targetCause').value;
+            const customWrapper = document.getElementById('customCauseWrapper');
+            if (selectVal === 'Khác') {
+                customWrapper.classList.remove('hidden');
+            } else {
+                customWrapper.classList.add('hidden');
+            }
+        }
+
+        function randomizeFace() {
+            const randomID = Math.floor(Math.random() * 100);
+            const input = document.getElementById('targetPhoto');
+            input.value = `https://images.unsplash.com/photo-${1500000000000 + randomID * 1000}?auto=format&fit=crop&w=150&q=80`;
+            showCustomAlert("Ghi nhận hình dung", "Khuôn mặt ngẫu nhiên đã được thiết lập để bạn dễ dàng tập trung tâm trí.", "fa-solid fa-image");
+        }
+
+        // HANDLE WRITING PROCESS (MAIN ACTION)
+        function handleWriteFate(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('targetName').value.trim();
+            const causeSelect = document.getElementById('targetCause').value;
+            let cause = causeSelect;
+            if (causeSelect === 'Khác') {
+                cause = document.getElementById('customCause').value.trim() || 'Lý do bí ẩn';
+            }
+            const delay = parseInt(document.getElementById('targetDelay').value) || 0;
+            let photo = document.getElementById('targetPhoto').value.trim();
+
+            if (!name) return;
+
+            if (!photo) {
+                // Generate anonymous placeholder from simple avatar
+                photo = `https://placehold.co/150x150/1e1e1a/8b0000?text=${encodeURIComponent(name.substring(0,2).toUpperCase())}`;
+            }
+
+            // Play pen scratching sounds sequentially mimicking writing
+            let scratchCount = 0;
+            const scratchInterval = setInterval(() => {
+                if (scratchCount < 3) {
+                    playPenScratch(0.5);
+                    scratchCount++;
+                } else {
+                    clearInterval(scratchInterval);
+                }
+            }, 450);
+
+            // Create handwritten text inside the book
+            const handwritingPage = document.getElementById('handwritingPage');
+            // Remove empty placeholder
+            if (handwritingPage.innerHTML.includes('Chưa có tên nào')) {
+                handwritingPage.innerHTML = '';
+            }
+
+            const newText = document.createElement('p');
+            newText.className = 'ink-text ink-writing';
+            newText.innerHTML = `${name} - <span class="text-stone-700 text-lg font-sans">${cause}</span>`;
+            handwritingPage.appendChild(newText);
+            handwritingPage.scrollTop = handwritingPage.scrollHeight;
+
+            // Trigger scary flash transition
+            triggerDramaticFlash();
+
+            // Play scary chime sound
+            setTimeout(() => {
+                playHorrorChime();
+                // Speed up heartbeat temporarily due to tension
+                heartRate = 600;
+                startHeartbeatLoop();
+            }, 800);
+
+            // Reset heartbeat after 5 seconds
+            setTimeout(() => {
+                heartRate = hasShinigamiEyes ? 900 : 1200;
+                startHeartbeatLoop();
+            }, 5000);
+
+            // Create Victim record
+            const newVictim = {
+                id: Date.now(),
+                name: name,
+                cause: cause,
+                delay: delay,
+                photo: photo,
+                createdAt: Date.now(),
+                sealed: false,
+                lifespan: generateLifespan()
+            };
+
+            victims.unshift(newVictim);
+            localStorage.setItem('deathnote_victims', JSON.stringify(victims));
+
+            // Reset Form
+            document.getElementById('deathNoteForm').reset();
+            document.getElementById('customCauseWrapper').classList.add('hidden');
+
+            renderVictims();
+            showCustomAlert("Tên Đã Khắc Ghi", `${name} đang bắt đầu quá trình chịu sự phán quyết của Thần Chết!`, "fa-solid fa-file-pen");
+        }
+
+        // VISUAL FLASH EFFECT
+        function triggerDramaticFlash() {
+            const body = document.body;
+            const container = document.getElementById('deathNoteContainer');
+            
+            // Intense horror red flash
+            body.style.backgroundColor = '#4a0000';
+            container.style.boxShadow = '0 0 50px #ff0000';
+            
+            setTimeout(() => {
+                body.style.backgroundColor = '';
+                container.style.boxShadow = '';
+            }, 300);
+
+            setTimeout(() => {
+                body.style.backgroundColor = '#2a0000';
+            }, 600);
+
+            setTimeout(() => {
+                body.style.backgroundColor = '';
+            }, 900);
+        }
+
+        // RENDER CRIPPLED/WRITTEN SOULS
+        function renderVictims() {
+            const grid = document.getElementById('victimGrid');
+            if (victims.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-8 text-center text-stone-600 text-sm italic">
+                        Chưa có sinh linh nào bị tước đoạt... Cuốn sổ tay vẫn trống rỗng.
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = '';
+            victims.forEach(v => {
+                // Calculate time left in 40s rule countdown
+                const elapsedSeconds = Math.floor((Date.now() - v.createdAt) / 1000);
+                const secondsRemaining = Math.max(0, 40 - elapsedSeconds);
+                const isSealed = elapsedSeconds >= 40;
+
+                const card = document.createElement('div');
+                card.className = `bg-stone-900/90 border ${isSealed ? 'border-red-950 opacity-80' : 'border-amber-600 animate-pulse'} p-3 rounded-lg flex items-center gap-3 shadow-lg relative overflow-hidden transition-all duration-300`;
+
+                // Death countdown bar for pending souls
+                let progressPercentage = 100;
+                if (!isSealed) {
+                    progressPercentage = (secondsRemaining / 40) * 100;
+                }
+
+                card.innerHTML = `
+                    <!-- Death progress bar -->
+                    <div class="absolute bottom-0 left-0 h-1 bg-red-600 transition-all duration-1000" style="width: ${progressPercentage}%"></div>
+                    
+                    <div class="relative w-14 h-14 rounded overflow-hidden border ${isSealed ? 'border-stone-800' : 'border-amber-500'} bg-stone-950 flex-shrink-0">
+                        <img src="${v.photo}" alt="${v.name}" class="w-full h-full object-cover grayscale" onerror="this.src='https://placehold.co/150x150/1e1e1a/8b0000?text=RIP'">
+                        
+                        <!-- Shinigami Eyes overlay when deal is active -->
+                        ${hasShinigamiEyes ? `
+                            <div class="absolute inset-0 bg-red-950/40 flex flex-col justify-end items-center">
+                                <span class="bg-black/80 text-[8px] text-red-500 px-0.5 rounded font-mono">${v.lifespan}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="flex-grow min-w-0">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-extrabold text-sm text-stone-200 truncate pr-2">${v.name}</h4>
+                            <button onclick="deleteSoul(${v.id})" class="text-stone-700 hover:text-red-500 text-xs transition-colors duration-200"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                        <p class="text-xs text-stone-400 italic truncate">${v.cause}</p>
+                        
+                        <div class="flex justify-between items-center mt-1">
+                            <span class="text-[9px] uppercase tracking-wider ${isSealed ? 'text-red-700 font-bold' : 'text-amber-500'}">
+                                ${isSealed ? '<i class="fa-solid fa-skull-crossbones mr-1"></i>Đã tước mạng' : `<i class="fa-solid fa-clock mr-1 animate-spin"></i>Đếm ngược: ${secondsRemaining}s`}
+                            </span>
+                            <span class="text-[8px] text-stone-500 font-mono">${new Date(v.createdAt).toLocaleTimeString()}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // PERIODIC REAL-TIME TIMER FOR THE 40s RULE
+        setInterval(() => {
+            let activeTimerExists = false;
+            victims.forEach(v => {
+                const elapsedSeconds = Math.floor((Date.now() - v.createdAt) / 1000);
+                if (elapsedSeconds < 40) {
+                    activeTimerExists = true;
+                    // Play a soft clock tick
+                    if (!isMuted) playClockTick();
+                }
+            });
+
+            const activeTimerUI = document.getElementById('activeTimer');
+            if (activeTimerExists) {
+                activeTimerUI.classList.remove('hidden');
+            } else {
+                activeTimerUI.classList.add('hidden');
+            }
+
+            renderVictims();
+        }, 1000);
+
+        // ERASE A SOUL (Admin Control)
+        function deleteSoul(id) {
+            victims = victims.filter(v => v.id !== id);
+            localStorage.setItem('deathnote_victims', JSON.stringify(victims));
+            renderVictims();
+            showCustomAlert("Xoá Hồ Sơ", "Bản ghi linh hồn đã được tiêu hủy khỏi bộ nhớ đệm.", "fa-solid fa-circle-info");
+        }
+
+        // SHINIGAMI EYE CONFLICT MECHANICS
+        function offerShinigamiEyes() {
+            if (hasShinigamiEyes) {
+                showCustomAlert("Sở Hữu Sẵn", "Ngươi đã thực hiện giao kèo Mắt Thần Chết rồi! Không thể hủy khế ước.", "fa-solid fa-eye");
+                return;
+            }
+            document.getElementById('eyeDealModal').classList.remove('hidden');
+        }
+
+        function closeEyeDealModal() {
+            document.getElementById('eyeDealModal').classList.add('hidden');
+        }
+
+        function acceptEyeContract() {
+            hasShinigamiEyes = true;
+            localStorage.setItem('shinigami_eyes', 'true');
+            closeEyeDealModal();
+            
+            // Dramatic sound
+            playShinigamiDealSound();
+
+            // Flash screen heavily
+            document.body.classList.add('shinigami-vision');
+            
+            showCustomAlert("GIAO KÈO HOÀN TẤT", "Giao kèo thành công! Đôi mắt đỏ rực của Shinigami đã thuộc về ngươi. Tuổi thọ của ngươi bị cắt giảm 50%.", "fa-solid fa-eye-evil");
+            
+            updateShinigamiEyesUI();
+            startHeartbeatLoop(); // Speed up heartbeat
+            initCamera(); // Request camera to showcase life counts on face
+        }
+
+        function updateShinigamiEyesUI() {
+            const eyeStatus = document.getElementById('eyeStatusIndicator');
+            const eyeBtn = document.getElementById('eyeDealBtn');
+            const ryukEyes = document.getElementById('ryukEyes');
+            const container = document.getElementById('deathNoteContainer');
+
+            if (hasShinigamiEyes) {
+                eyeStatus.classList.remove('hidden');
+                eyeBtn.innerHTML = `<i class="fa-solid fa-circle-check text-red-500"></i> KHẾ ƯỚC HOÀN TẤT`;
+                eyeBtn.classList.add('opacity-80', 'cursor-not-allowed');
+                ryukEyes.classList.remove('hidden');
+                document.body.classList.add('shinigami-vision');
+                document.getElementById('shinigamiVisionPanel').classList.remove('hidden');
+                initCamera();
+            }
+        }
+
+        // RYUK EASTER EGG & APPLES
+        function feedApple() {
+            applesFed++;
+            localStorage.setItem('apples_fed', applesFed);
+            updateAppleUI();
+
+            // Play crunch sounds (synthesizing crunch)
+            initAudio();
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(320, now);
+            osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(now + 0.3);
+
+            // Ryuk talks back dynamically
+            const speech = document.getElementById('ryukSpeech');
+            const randomQuote = ryukQuotes[Math.floor(Math.random() * ryukQuotes.length)];
+            speech.textContent = `"${randomQuote}"`;
+            speech.classList.add('text-red-400');
+            setTimeout(() => {
+                speech.classList.remove('text-red-400');
+            }, 1000);
+
+            // Flash apples visually
+            showCustomAlert("Dâng Tặng Ryuk", "Ryuk rất sung sướng! Thần chết nhai táo ngon lành râm ran.", "fa-solid fa-apple-whole");
+        }
+
+        function updateAppleUI() {
+            document.getElementById('appleCount').textContent = applesFed;
+        }
+
+        // SHINIGAMI EYE LIVE CAMERA SYSTEM (WITH SIMULATED HUD CODES)
+        function initCamera() {
+            if (!hasShinigamiEyes) return;
+            const video = document.getElementById('shinigamiCam');
+            const fallback = document.getElementById('shinigamiCamFallback');
+
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+                    .then(stream => {
+                        streamActive = stream;
+                        video.srcObject = stream;
+                        video.classList.remove('hidden');
+                        fallback.classList.add('hidden');
+                    })
+                    .catch(err => {
+                        console.log("Camera access denied or unavailable: ", err);
+                        fallback.textContent = "Không có camera. Máy quét sử dụng định danh ảo.";
+                    });
+            }
+        }
+
+        // PARTICLE SMOKE BACKGROUND ON CANVAS
+        function initSmokeCanvas() {
+            const canvas = document.getElementById('smokeCanvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = canvas.height + Math.random() * 100;
+                    this.size = Math.random() * 80 + 40;
+                    this.speedY = -(Math.random() * 0.8 + 0.2);
+                    this.speedX = Math.random() * 0.4 - 0.2;
+                    this.alpha = Math.random() * 0.3 + 0.1;
+                    this.color = Math.random() > 0.85 ? 'rgba(139, 0, 0, ' : 'rgba(20, 20, 20, '; // Occasionally red smoke
+                }
+
+                update() {
+                    this.y += this.speedY;
+                    this.x += this.speedX;
+                    if (this.alpha > 0.002) this.alpha -= 0.001; // Fade out slowly
+                }
+
+                draw() {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color + this.alpha + ')';
+                    ctx.filter = 'blur(20px)';
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            function handleParticles() {
+                if (particles.length < 35) {
+                    particles.push(new Particle());
+                }
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                    // Remove faded or out of screen particles
+                    if (particles[i].y < -100 || particles[i].alpha <= 0.01) {
+                        particles.splice(i, 1);
+                        i--;
+                    }
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                handleParticles();
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        // Run animations or listeners on loading the script
+        window.onload = function() {
+            // Check state
+            if (localStorage.getItem('shinigami_eyes') === 'true') {
+                hasShinigamiEyes = true;
+            }
+        };
+    </script>
+</body>
+</html>
